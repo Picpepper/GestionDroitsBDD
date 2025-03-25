@@ -43,7 +43,7 @@ final class BaseController extends AbstractController
                 $eMII->persist($user);
                 $eMII->flush();
 
-                return $this->redirectToRoute('app_base');
+                return $this->redirectToRoute('app_liste_user');
             }
         }
 
@@ -60,6 +60,6 @@ final class BaseController extends AbstractController
             $eMI->flush();
             $this->addFlash('notice', 'Utilisateur supprimée');
         }
-        return $this->redirectToRoute('app_base');
+        return $this->redirectToRoute('app_liste_user');
     }
 }
