@@ -14,18 +14,24 @@ use Symfony\Component\Routing\Attribute\Route;
 final class BaseController extends AbstractController
 {
     #[Route('/', name: 'app_base')]
-    public function index(UserRepository $userRepository): Response
+    public function index(): Response
+    {
+        return $this->render('base.html.twig', []);
+    }
+
+    #[Route('/liste-user', name: 'app_liste_user')]
+    public function afficher_users(UserRepository $userRepository): Response
     {
         $users = $userRepository->findAll();
 
-        return $this->render('base.html.twig', [
+        return $this->render('base/liste-user.html.twig', [
             'users' => $users
         ]);
     }
 
     // Code non fonctionnel. L'erreur "Warning: Array to string conversion" ne veut pas se résoudre malgré mes nombreuses tentatives quand je rejoins cette page, je vous laisse voir.
-    #[Route('/modifier/{id}', name: 'app_modifier_user')]
-    public function modifier_user(Request $request, User $user, EntityManagerInterface $eMI): Response
+    #[Route('/modifier-user/{id}', name: 'app_modifier_user')]
+    public function modifier_user(Request $request, User $user, EntityManagerInterface $eMII): Response
     {
         $form = $this->createForm(ModifUserForm::class, $user);
         if ($request->isMethod('POST')) {
@@ -34,8 +40,8 @@ final class BaseController extends AbstractController
                 $roles = $form->get('roles')->getData();
                 $user->setRoles($roles);
 
-                $eMI->persist($user);
-                $eMI->flush();
+                $eMII->persist($user);
+                $eMII->flush();
 
                 return $this->redirectToRoute('app_base');
             }
@@ -44,5 +50,16 @@ final class BaseController extends AbstractController
         return $this->render('action/modifier-user.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/supprimer-user/{id}', name: 'app_supprimer_user')]
+    public function supprimer_user(User $user, EntityManagerInterface $eMI): Response
+    {
+        if ($user != null) {
+            $eMI->remove($user);
+            $eMI->flush();
+            $this->addFlash('notice', 'Utilisateur supprimée');
+        }
+        return $this->redirectToRoute('app_base');
     }
 }
