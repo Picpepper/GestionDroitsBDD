@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Securite;
 use App\Form\GestionDonneesForm;
 use App\Form\ModifUserForm;
+use App\Form\SecuriteToggleForm;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,9 +19,66 @@ use Symfony\Component\Routing\Attribute\Route;
 final class BaseController extends AbstractController
 {
     #[Route('/', name: 'app_base')]
-    public function index(): Response
+    public function index(Securite $securite, Request $request, EntityManagerInterface $em): Response
     {
-        return $this->render('base.html.twig', []);
+        // dump($this->getUser());
+
+        $securite = $em->getRepository(Securite::class)->find(1);
+
+        $form = $this->createForm(SecuriteToggleForm::class, $securite);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($securite);
+            $em->flush();
+
+            if (!$securite->getIsEnabled()) {
+                $this->resetPrivilegesForAllUsers($em);
+            } else {
+                $this->restorePrivilegesForAllUsers($em);
+            }
+
+            $this->addFlash('success', 'Sécurité mise à jour avec succès.');
+        }
+
+        return $this->render('base.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private function resetPrivilegesForAllUsers(EntityManagerInterface $em)
+    {
+        $users = $em->getRepository(User::class)->findAll();
+
+        foreach ($users as $user) {
+            if (!in_array('ROLE_ADMIN', $user->getRoles())) {
+                $user->setRoles([]);
+            }
+            $em->persist($user);
+        }
+
+        $em->flush();
+    }
+
+    private function restorePrivilegesForAllUsers(EntityManagerInterface $em)
+    {
+        $users = $em->getRepository(User::class)->findAll();
+
+        foreach ($users as $user) {
+            if (in_array('ROLE_ADMIN', $user->getRoles())) {
+                continue;
+            }
+
+            if (in_array('ROLE_USER', $user->getRoles())) {
+                $user->setRoles(['ROLE_USER']);
+            } elseif (in_array('ROLE_MOD', $user->getRoles())) {
+                $user->setRoles(['ROLE_MOD']);
+            }
+
+            $em->persist($user);
+        }
+
+        $em->flush();
     }
 
     #[Route('/liste-user', name: 'app_liste_user')]
