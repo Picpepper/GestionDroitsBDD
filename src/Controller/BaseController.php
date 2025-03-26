@@ -8,6 +8,7 @@ use App\Form\ModifUserForm;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -76,5 +77,16 @@ final class BaseController extends AbstractController
         return $this->render('action/modifier-user.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/supprimer-user/{id}', name: 'app_supprimer_user')]
+    public function supprimer_user(User $user, EntityManagerInterface $eMI): Response
+    {
+        if ($user != null) {
+            $eMI->remove($user);
+            $eMI->flush();
+            $this->addFlash('notice', 'Utilisateur supprimée');
+        }
+        return $this->redirectToRoute('app_liste_user');
     }
 }
