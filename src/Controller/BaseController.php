@@ -56,28 +56,25 @@ final class BaseController extends AbstractController
         ]);
     }
 
-    // Code non fonctionnel. L'erreur "Warning: Array to string conversion" ne veut pas se résoudre malgré mes nombreuses tentatives quand je rejoins cette page, je vous laisse voir.
     #[Route('/modifier-user/{id}', name: 'app_modifier_user')]
-    public function modifier_user(Request $request, User $user, EntityManagerInterface $eMI): Response
-    {
-        $form = $this->createForm(ModifUserForm::class, $user);
-        if ($request->isMethod('POST')) {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $roles = $form->get('roles')->getData();
-                $user->setRoles($roles);
+public function modifier_user(Request $request, User $user, EntityManagerInterface $eMI): Response
+{
+    $form = $this->createForm(ModifUserForm::class, $user);
+    $form->handleRequest($request);
 
-                $eMI->persist($user);
-                $eMI->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Pas besoin de récupérer et setter les roles si votre form le fait déjà
+        $eMI->flush();
 
-                return $this->redirectToRoute('app_liste_user');
-            }
-        }
-
-        return $this->render('action/modifier-user.html.twig', [
-            'form' => $form->createView()
-        ]);
+        $this->addFlash('success', 'Utilisateur modifié avec succès');
+        return $this->redirectToRoute('app_liste_user');
     }
+
+    return $this->render('action/modifier-user.html.twig', [
+        'form' => $form->createView(),
+        'user' => $user
+    ]);
+}
 
     #[Route('/supprimer-user/{id}', name: 'app_supprimer_user')]
     public function supprimer_user(User $user, EntityManagerInterface $eMI): Response
@@ -90,3 +87,4 @@ final class BaseController extends AbstractController
         return $this->redirectToRoute('app_liste_user');
     }
 }
+

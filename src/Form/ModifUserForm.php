@@ -21,12 +21,13 @@ class ModifUserForm extends AbstractType
             ])
             ->add('roles', ChoiceType::class, [
                 'choices' => [
-                    'Utilisateur' => 'ROLE_USER',
-                    'Administrateur' => 'ROLE_ADMIN',
-                ],
-                'expanded' => false,
-                'multiple' => false,
-                'attr' => ['class' => 'form-select'],
+                'Administrateur' => 'ROLE_ADMIN',
+                'Utilisateur' => 'ROLE_USER',
+                // Ajoutez d'autres rôles si nécessaire
+            ],
+            'expanded' => true,
+            'multiple' => true,
+            'required' => true,
             ])
             ->add('submit', SubmitType::class, [
                 'attr' => ['class' => 'btn bg-primary text-white m-4'],

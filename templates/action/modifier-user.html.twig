@@ -1,10 +1,24 @@
 {% extends 'base.html.twig' %}
 {% block title %} {{parent()}} Modifier l'utilisateur {% endblock %}
 {% block body %}
-<div class="container-fluid">
-    <h1 class="text-center text-primary mt-4 pt-4 display-1 fw-bold">
-        Modifier l'utilisateur</h1>
+{{ form_start(form) }}
+    {# Affichez vos autres champs normalement #}
+    {{ form_row(form.email) }}
+    {{ form_row(form.nom) }}
+    {# ... #}
 
-    {{form(form)}}
-</div>
+    {# Pour les rôles #}
+    <div class="form-group">
+        {{ form_label(form.roles) }}
+        {{ form_widget(form.roles) }}
+        {{ form_errors(form.roles) }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Modifier</button>
+{{ form_end(form) }}
+
+{# Si vous voulez afficher les rôles ailleurs dans le template #}
+{% if user.roles is defined %}
+    <p>Rôles actuels: {{ user.roles|join(', ') }}</p>
+{% endif %}
 {% endblock %}
