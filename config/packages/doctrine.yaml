@@ -1,7 +1,9 @@
 doctrine:
     dbal:
-        default_connection: user
+        default_connection: visiteur
         connections:
+            visiteur:
+                url: '%env(resolve:DATABASE_URL_VISITEUR)%'
             user:
                 url: '%env(resolve:DATABASE_URL_USER)%'
             mod:

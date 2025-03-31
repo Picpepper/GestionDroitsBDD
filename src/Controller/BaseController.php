@@ -19,7 +19,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class BaseController extends AbstractController
 {
     #[Route('/', name: 'app_base')]
-    public function index(Securite $securite, Request $request, EntityManagerInterface $em): Response
+    public function index(): Response
+    {
+
+        return $this->render('base.html.twig', [
+        ]);
+    }
+
+    #[Route('/securite', name: 'app_securite')]
+    public function securite(Securite $securite, Request $request, EntityManagerInterface $em): Response
     {
         // dump($this->getUser());
 
@@ -41,7 +49,7 @@ final class BaseController extends AbstractController
             $this->addFlash('success', 'Sécurité mise à jour avec succès.');
         }
 
-        return $this->render('base.html.twig', [
+        return $this->render('activer-securite.html.twig', [
             'form' => $form->createView(),
         ]);
     }

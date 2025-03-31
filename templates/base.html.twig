@@ -28,12 +28,12 @@
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto">
+                    {% if app.user %}
                     <li class="nav-link">
-                        {% if app.user %}
                         {{ app.user.userIdentifier }} |
                         <a class="text-secondary" href="{{ path('app_logout') }}">Se déconnecter</a>
-                        {% endif %}
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -42,16 +42,9 @@
     <div class="row">
         <button type="button" class="btn btn-dark btn-sm"><a class="text-dark" href="{{ path('app_liste_user') }}">Liste
                 des utilisateurs</a></button>
-
     </div>
 
     {% block body %}
-
-    {% if is_granted('ROLE_ADMIN') %}
-    {% block form_content %}
-    {{ form(form) }}
-    {% endblock %}
-    {% endif %}
 
     {% endblock %}
 
