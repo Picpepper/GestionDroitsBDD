@@ -22,8 +22,7 @@ final class BaseController extends AbstractController
     public function index(): Response
     {
 
-        return $this->render('base.html.twig', [
-        ]);
+        return $this->render('base.html.twig', []);
     }
 
     #[Route('/securite', name: 'app_securite')]
@@ -39,12 +38,13 @@ final class BaseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($securite);
             $em->flush();
-
+            /*
             if (!$securite->getIsEnabled()) {
                 $this->resetPrivilegesForAllUsers($em);
             } else {
                 $this->restorePrivilegesForAllUsers($em);
             }
+            */
 
             $this->addFlash('success', 'Sécurité mise à jour avec succès.');
         }
@@ -54,6 +54,7 @@ final class BaseController extends AbstractController
         ]);
     }
 
+    /*
     private function resetPrivilegesForAllUsers(EntityManagerInterface $em)
     {
         $users = $em->getRepository(User::class)->findAll();
@@ -88,10 +89,13 @@ final class BaseController extends AbstractController
 
         $em->flush();
     }
+*/
 
     #[Route('/liste-user', name: 'app_liste_user')]
     public function afficher_users(Request $request, UserRepository $userRepository): Response
     {
+        var_dump($this->getUser());
+
         $users = $userRepository->findAll();
         $form = $this->createForm(GestionDonneesForm::class);
 
@@ -123,26 +127,22 @@ final class BaseController extends AbstractController
         ]);
     }
 
-    // Code non fonctionnel. L'erreur "Warning: Array to string conversion" ne veut pas se résoudre malgré mes nombreuses tentatives quand je rejoins cette page, je vous laisse voir.
     #[Route('/modifier-user/{id}', name: 'app_modifier_user')]
     public function modifier_user(Request $request, User $user, EntityManagerInterface $eMI): Response
     {
         $form = $this->createForm(ModifUserForm::class, $user);
-        if ($request->isMethod('POST')) {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $roles = $form->get('roles')->getData();
-                $user->setRoles($roles);
+        $form->handleRequest($request);
 
-                $eMI->persist($user);
-                $eMI->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $eMI->flush();
 
-                return $this->redirectToRoute('app_liste_user');
-            }
+            $this->addFlash('success', 'Utilisateur modifié avec succès');
+            return $this->redirectToRoute('app_liste_user');
         }
 
         return $this->render('action/modifier-user.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'user' => $user
         ]);
     }
 

@@ -1,16 +1,15 @@
 doctrine:
     dbal:
-        default_connection: visiteur
+        default_connection: admin
         connections:
-            visiteur:
-                url: '%env(resolve:DATABASE_URL_VISITEUR)%'
-            user:
-                url: '%env(resolve:DATABASE_URL_USER)%'
-            mod:
-                url: '%env(resolve:DATABASE_URL_MOD)%'
             admin:
                 url: '%env(resolve:DATABASE_URL_ADMIN)%'
-                
+            mod:
+                url: '%env(resolve:DATABASE_URL_MOD)%'
+            user:
+                url: '%env(resolve:DATABASE_URL_USER)%'
+            visiteur:
+                url: '%env(resolve:DATABASE_URL_VISITEUR)%'                
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '16'

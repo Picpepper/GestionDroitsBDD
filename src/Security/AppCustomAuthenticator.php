@@ -43,14 +43,27 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-{
-    if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-        return new RedirectResponse($targetPath);
-    }
+    {
+        $user = $token->getUser();
+        $session = $request->getSession();
 
-    // Redirection vers la page d'accueil (ou une autre page par défaut)
-    return new RedirectResponse($this->urlGenerator->generate('app_base'));  // 'home' étant le nom de la route d'accueil
-}
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
+            $session->set('database_connection', 'admin');
+        } else if (in_array('ROLE_MOD', $user->getRoles())) {
+            $session->set('database_connection', 'mod');
+        } else if (in_array('ROLE_USER', $user->getRoles())) {
+            $session->set('database_connection', 'user');
+        }
+        // dd($session->get('database_connection'));
+
+
+        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+            return new RedirectResponse($targetPath);
+        }
+
+        // Redirection vers la page d'accueil (ou une autre page par défaut)
+        return new RedirectResponse($this->urlGenerator->generate('app_base'));  // 'home' étant le nom de la route d'accueil
+    }
 
 
     protected function getLoginUrl(Request $request): string
